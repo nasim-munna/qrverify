@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Product Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div id="main-card" class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        
+        <div id="step-age">
+            <div class="text-center mb-6">
+                <div class="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Age Verification</h2>
+                <p class="text-gray-500 mt-2">You must be 21 or older to verify this product.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <input type="number" id="age-input" placeholder="Enter your age" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                <button onclick="checkAge()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+                    Continue to Verification
+                </button>
+                <p id="age-error" class="text-red-500 text-sm hidden">Access Denied: You must be at least 21 years old.</p>
+            </div>
+        </div>
+
+        <div id="step-loading" class="hidden text-center py-10">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Securing Connection...</h2>
+            <div class="space-y-4 text-left max-w-xs mx-auto">
+                <div id="check-1" class="flex items-center text-gray-400">
+                    <div class="loader mr-3" id="load-1"></div>
+                    <span id="text-1">Analyzing Security Certificate...</span>
+                </div>
+                <div id="check-2" class="flex items-center text-gray-400">
+                    <div class="hidden mr-3" id="load-2"></div>
+                    <span id="text-2">Validating Unique SKU Database...</span>
+                </div>
+                <div id="check-3" class="flex items-center text-gray-400">
+                    <div class="hidden mr-3" id="load-3"></div>
+                    <span id="text-3">Cross-referencing Global Batch Codes...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="step-result" class="hidden">
+            {% if is_first_scan %}
+            <div class="text-center">
+                <div class="bg-green-100 text-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Authenticity Confirmed</h2>
+                <p class="text-gray-500 text-sm mt-1">This product is a certified genuine item.</p>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <div class="bg-amber-100 text-amber-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Verified Previous Scan</h2>
+                <p class="text-gray-500 text-sm mt-1">This product has already been scanned <strong>{{ scan_count }}</strong> times.</p>
+            </div>
+            {% endif %}
+            
+            <div class="mt-8 bg-gray-50 rounded-xl p-5 border border-gray-200">
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-gray-500 text-sm">Product Name</span>
+                    <span class="text-gray-900 font-medium">{{ product.name }}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-gray-500 text-sm">SKU Number</span>
+                    <span class="text-gray-900 font-mono">{{ product.sku_code }}</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-500 text-sm">Scan Origin</span>
+                    <span class="text-gray-900 font-medium">{{ country }}</span>
+                </div>
+            </div>
+
+            <button onclick="window.location.reload()" class="mt-8 w-full border-2 border-gray-200 hover:border-blue-600 text-gray-600 hover:text-blue-600 font-semibold py-3 rounded-lg transition">
+                Scan Another Product
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function checkAge() {
+            const age = document.getElementById('age-input').value;
+            const error = document.getElementById('age-error');
+            
+            if (age >= 21) {
+                error.classList.add('hidden');
+                transitionToLoading();
+            } else {
+                error.classList.remove('hidden');
+            }
+        }
+
+        function transitionToLoading() {
+            document.getElementById('step-age').classList.add('hidden');
+            document.getElementById('step-loading').classList.remove('hidden');
+
+            const checks = [
+                { id: 1, delay: 1200 },
+                { id: 2, delay: 2400 },
+                { id: 3, delay: 3600 }
+            ];
+
+            checks.forEach((check, index) => {
+                setTimeout(() => {
+                    // Update current check to Green Checkmark
+                    const loadEl = document.getElementById(`load-${check.id}`);
+                    loadEl.classList.remove('loader');
+                    loadEl.innerHTML = '✅';
+                    loadEl.classList.remove('hidden');
+                    
+                    const textRow = document.getElementById(`check-${check.id}`);
+                    textRow.classList.replace('text-gray-400', 'text-green-600');
+                    textRow.classList.add('font-medium');
+
+                    // Start next loader if there is one
+                    if (index < checks.length - 1) {
+                        const nextLoadEl = document.getElementById(`load-${check.id + 1}`);
+                        nextLoadEl.classList.add('loader');
+                        nextLoadEl.classList.remove('hidden');
+                        document.getElementById(`check-${check.id + 1}`).classList.replace('text-gray-400', 'text-gray-800');
+                    } else {
+                        // All steps complete - Show Product Info
+                        setTimeout(() => {
+                            document.getElementById('step-loading').classList.add('hidden');
+                            document.getElementById('step-result').classList.remove('hidden');
+                        }, 800);
+                    }
+                }, check.delay);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+    <div style="margin-top:20px;">
+        <h3>Generate QR Codes</h3>
+        <input type="number" name="quantity" placeholder="Enter quantity" required>
+        <button type="submit" name="_generate_qr" class="default">
+            Generate & Export CSV
+        </button>
+    </div>
+{% endblock %}
